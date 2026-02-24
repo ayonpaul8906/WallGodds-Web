@@ -1,9 +1,14 @@
 import { useRef, useState, useEffect } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+// LIGHT-ICONS
+import MobileIcon_light from "./GallaryAssets/mobile-light.svg";
+import TabletIcon_light from "./GallaryAssets/tablet-light.svg";
+import LaptopIcon_light from "./GallaryAssets/laptop-light.svg";
+// DARK-ICONS
+import MobileIcon_dark from "./GallaryAssets/mobile-dark.svg";
+import TabletIcon_dark from "./GallaryAssets/tablet-dark.svg";
+import LaptopIcon_dark from "./GallaryAssets/laptop-dark.svg";
 
-import MobileIcon from "./GallaryAssets/mobile.svg";
-import TabletIcon from "./GallaryAssets/tablet.svg";
-import LaptopIcon from "./GallaryAssets/laptop.svg";
 
 import Abstract from "./categorieItems/Abstract.svg";
 import Nature from "./categorieItems/Nature.svg";
@@ -27,11 +32,11 @@ import Footer from "../CommonModule/FooterModule/Footer";
 
 import Styles from "./Gallery.module.css";
 
-const devices = [
-  { id: "tablet", icon: TabletIcon, route: "/gallery/tablet" },
-  { id: "desktop", icon: LaptopIcon, route: "/gallery/desktop" },
-  { id: "mobile", icon: MobileIcon, route: "/gallery/mobile" },
-];
+// const devices = [
+//   { id: "tablet", icon: TabletIcon, route: "/gallery/tablet" },
+//   { id: "desktop", icon: LaptopIcon, route: "/gallery/desktop" },
+//   { id: "mobile", icon: MobileIcon, route: "/gallery/mobile" },
+// ];
 
 const categories = [
   { title: "Abstract", image: Abstract },
@@ -53,53 +58,122 @@ const Gallery = () => {
   const location = useLocation();
   const activeDevice = location.pathname.split("/").pop();
 
+  const [isDark,setIsDark]=useState(
+    document.body.classList.contains("dark-theme")
+  );
+  useEffect(() => {
+    const observer= new MutationObserver(() => {
+      setIsDark(document.body.classList.contains("dark-theme"));
+    });
+    observer.observe(document.body,{attributes:true});
+    return () => observer.disconnect();
+  },[]);
+
+  const devices = [
+    {
+      id: "tablet",
+      icon: isDark ? TabletIcon_dark : TabletIcon_light,
+      route: "/gallery/tablet",
+    },
+    {
+      id: "desktop",
+      icon: isDark ? LaptopIcon_dark : LaptopIcon_light,
+      route: "/gallery/desktop",
+    },
+    {
+      id: "mobile",
+      icon: isDark ? MobileIcon_dark : MobileIcon_light,
+      route: "/gallery/mobile",
+    },
+  ];
+
   useEffect(() => {
     if (location.pathname === "/gallery" || location.pathname === "/gallery/") {
       navigate("/gallery/desktop", { replace: true });
     }
   }, [location.pathname, navigate]);
 
-  /* Scroll Animation Logic */
-  const navbarRef = useRef(null);
-  const lastScrollTop = useRef(0);
-  const currentTranslate = useRef(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const delta = scrollTop - lastScrollTop.current;
-      const navbarHeight = 112 ; // 7rem approx
-      
-      // Calculate new translation
-      let newTranslate = currentTranslate.current - delta;
-      
-      // Clamp translation between -navbarHeight (hidden) and 0 (visible)
-      if (newTranslate > 0) newTranslate = 0;
-      if (newTranslate < -navbarHeight) newTranslate = -navbarHeight;
-      
-      currentTranslate.current = newTranslate;
-      lastScrollTop.current = scrollTop <= 0 ? 0 : scrollTop;
-
-      // Calculate scale based on translation (0 to 1 progress)
-      // 0 translate -> 1 scale
-      // -navbarHeight translate -> 0.9 scale
-      const progress = Math.abs(newTranslate) / navbarHeight;
-      const scale = 1 - (progress * 0.4);
-
-      if (navbarRef.current) {
-        navbarRef.current.style.transform = `translateY(${newTranslate}px) scale(${scale})`;
-        navbarRef.current.style.transition = 'none'; // Ensure no CSS lag
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   const sliderRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  
+  // Navbar Scroll Logic
+  // Navbar Scroll Logic
+  const navbarRef = useRef(null);
+  const scrollAreaRef = useRef(null);
+  const contentWrapperRef = useRef(null);
+  const navbarScrollPos = useRef(0);
+
+  // Sequential Scroll Logic (Non-passive listener to control event)
+  useEffect(() => {
+    const handleWheelSeq = (e) => {
+      // Prevent default browser scrolling
+      e.preventDefault();
+
+      const delta = e.deltaY;
+      const maxScroll = 250;
+      const maxContentScroll = 120;
+      const scrollArea = scrollAreaRef.current;
+
+      if (!navbarRef.current || !contentWrapperRef.current || !scrollArea) return;
+
+      // Current State
+      let currentNavPos = navbarScrollPos.current;
+      let currentContentScroll = scrollArea.scrollTop;
+
+      // Logic:
+      // Scroll DOWN (delta > 0): Navbar Shrinks FIRST -> Then Content Scrolls
+      // Scroll UP (delta < 0): Content Scrolls to Top FIRST -> Then Navbar Expands
+
+      const navbarShrinkSpeed = 0.8;
+      const navbarExpandSpeed = 1.5; // Fast expansion
+      const contentSpeed = 0.25; // Even slower content scroll
+
+      if (delta > 0) {
+        // SCROLLING DOWN
+        if (currentNavPos < maxScroll) {
+          // Priority 1: Shrink Navbar
+          currentNavPos += delta * navbarShrinkSpeed;
+          currentNavPos = Math.min(currentNavPos, maxScroll);
+        } else {
+          // Priority 2: Scroll Content
+          scrollArea.scrollTop += delta * contentSpeed;
+        }
+      } else {
+        // SCROLLING UP
+        if (currentContentScroll > 0) {
+          // Priority 1: Scroll Content Up
+          scrollArea.scrollTop += delta * contentSpeed;
+        } else {
+          // Priority 2: Expand Navbar (only if content is at top)
+          currentNavPos += delta * navbarExpandSpeed;
+          currentNavPos = Math.max(currentNavPos, 0);
+        }
+      }
+
+      // Update Refs/State
+      navbarScrollPos.current = currentNavPos;
+
+      // Apply Animations based on new NavPos
+      const progress = currentNavPos / maxScroll;
+      navbarRef.current.style.setProperty("--scroll-progress", progress);
+
+      const contentTranslate = progress * -maxContentScroll;
+      contentWrapperRef.current.style.setProperty(
+        "--header-margin-top",
+        `${contentTranslate}px`
+      );
+    };
+
+    // Attach non-passive listener to window or container
+    // Attaching to window ensures we catch it everywhere (including over navbar)
+    window.addEventListener("wheel", handleWheelSeq, { passive: false });
+
+    return () => {
+      window.removeEventListener("wheel", handleWheelSeq);
+    };
+  }, []);
 
   const handleMouseDown = (e) => {
     if (!sliderRef.current) return;
@@ -127,67 +201,69 @@ const Gallery = () => {
     sliderRef.current.scrollLeft = scrollLeft - walk;
   };
 
-
   return (
     <>
-      <div className={Styles.navbarWrapper} ref={navbarRef}>
-        <NavBar />
-      </div>
+      <NavBar className={Styles.galleryNavbar} ref={navbarRef} />
 
+      {/* Main Scroll Container */}
       <div className={Styles.container}>
-        {/* Device Selector */}
-        <div className={Styles.deviceSelector}>
-          {devices.map(({ id, icon: Icon, route }) => {
-            const isActive = activeDevice === id;
-            const isAnyActive = devices.some((d) => d.id === activeDevice);
-            const shouldBlur = isAnyActive && !isActive;
+        
+        {/* Scrollable Content Wrapper */}
+        <div className={Styles.contentWrapper} ref={contentWrapperRef}>
+          {/* Device Selector */}
+          <div className={Styles.deviceSelector}>
+            {devices.map(({ id, icon: Icon, route }) => {
+              const isActive = activeDevice === id;
+              const isAnyActive = devices.some((d) => d.id === activeDevice);
+              const shouldBlur = isAnyActive && !isActive;
 
-            return (
-              <button
-                key={id}
-                onClick={() => navigate(route)}
-                className={`${Styles.deviceBtn} ${isActive ? Styles.active : ""} ${shouldBlur ? Styles.blurred : ""}`}
-              >
-                <img src={Icon} alt={id} width={34} height={34} />
-              </button>
-            );
-          })}
-        </div>
+              return (
+                <button
+                  key={id}
+                  onClick={() => navigate(route)}
+                  className={`${Styles.deviceBtn} ${isActive ? Styles.active : ""} ${shouldBlur ? Styles.blurred : ""}`}
+                >
+                  <img src={Icon} alt={id} width={34} height={34} />
+                </button>
+              );
+            })}
+          </div>
 
-        <div className={Styles.temp}>
-          {/* Categories */}
-          <div
-            ref={sliderRef}
-            className={Styles.scrollItems}
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseLeave}
-            onMouseMove={handleMouseMove}
-          >
-            {categories.map((cat, index) => (
-              <div
-                key={index}
-                className={Styles.categoryCard}
-                style={{ backgroundImage: `url(${cat.image})` }}
-              >
-                <span className={Styles.categoryTitle}>{cat.title}</span>
-              </div>
-            ))}
+          <div className={Styles.temp}>
+            {/* Categories */}
+            <div
+              ref={sliderRef}
+              className={Styles.scrollItems}
+              onMouseDown={handleMouseDown}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseLeave}
+              onMouseMove={handleMouseMove}
+            >
+              {categories.map((cat, index) => (
+                <div
+                  key={index}
+                  className={Styles.categoryCard}
+                  style={{ backgroundImage: `url(${cat.image})` }}
+                >
+                  <span className={Styles.categoryTitle}>{cat.title}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className={Styles.galleryScrollArea} ref={scrollAreaRef}>
+            {activeDevice === "mobile" && <Mobile />}
+            
+            <Routes>
+              <Route path="desktop" element={<Desktop />} />
+              <Route path="tablet" element={<Tablet />} />
+            </Routes>
+            
+            <div className={Styles.footerWrapper}>
+              <Footer />
+            </div>
           </div>
         </div>
-
-        <div className={Styles.galleryScrollArea}>
-          {activeDevice === "mobile" && <Mobile />}
-          
-          <Routes>
-            <Route path="desktop" element={<Desktop />} />
-            <Route path="tablet" element={<Tablet />} />
-          </Routes>
-
-          <div className={Styles.footerWrapper}>
-            <Footer />
-          </div>
-        </div> 
       </div>
     </>
   );
