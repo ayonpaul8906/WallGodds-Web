@@ -10,43 +10,20 @@ import MobileIcon from "../GalleryModule/GallaryAssets/mobile-light.svg";
 import UploadIconImg from "../GalleryModule/GallaryAssets/upload-icon.png";
 
 const Upload = () => {
+
     const [previewUrl, setPreviewUrl] = useState(null);
+
     const [isDraggingOver, setIsDraggingOver] = useState(false);
     const fileInputRef = useRef(null);
 
-    const categories=["Abstract","Nature","Anime","Art","Movies","Vehicles","Sports","Gaming","Travels"
-    ,"Spiritual","Music","AI Gen"];
    
-    const {
-       register ,
-       handleSubmit,
-       setValue,
-       watch,
-       formState: {errors}
-       }=useForm();
-
-    
-    const onSubmit =(data)=>{
-       if (!previewUrl) {
-    alert("Please upload a wallpaper first");
-    return;
-  }
-    const wallpaper = {
-    wallpaperName: data.wallpaperName,
-    device: data.device,
-    category: data.category,
-    description: data.description || "",
-    image: previewUrl,
-  };
-
-  
-   
-   };
     
    const handleFile = useCallback((file) => { 
         if (!file || !file.type.startsWith("image/")) return;
-        const url = URL.createObjectURL(file);
+         const url = URL.createObjectURL(file);
+        
         setPreviewUrl(url);
+        
         
         setValue("device", "");
         const img=new Image();
@@ -75,6 +52,34 @@ const Upload = () => {
             }
           };
                 }, [setValue]);
+ const categories=["Abstract","Nature","Anime","Art","Movies","Vehicles","Sports","Gaming","Travels"
+    ,"Spiritual","Music","AI Gen"];
+   
+    const {
+       register ,
+       handleSubmit,
+       setValue,
+       watch,
+       formState: {errors}
+       }=useForm();
+
+    
+    const onSubmit =(data)=>{
+       if (!previewUrl) {
+    alert("Please upload a wallpaper first");
+    return;
+  }
+    const wallpaper = {
+    wallpaperName: data.wallpaperName,
+    device: data.device,
+    category: data.category,
+    description: data.description || "",
+    image: previewUrl,
+  };
+
+  
+   
+   };
 
     const handleDragOver = (e) => {
         e.preventDefault();
