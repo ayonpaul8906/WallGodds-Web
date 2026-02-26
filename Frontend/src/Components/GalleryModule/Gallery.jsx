@@ -124,7 +124,7 @@ const Gallery = () => {
 
       // Logic:
       // Scroll DOWN (delta > 0): Navbar Shrinks FIRST -> Then Content Scrolls
-      // Scroll UP (delta < 0): Content Scrolls to Top FIRST -> Then Navbar Expands
+      // Scroll UP (delta < 0): Navbar Expands FIRST -> Then Content Scrolls Up
 
       const navbarShrinkSpeed = 0.8;
       const navbarExpandSpeed = 1.5; // Fast expansion
@@ -142,13 +142,13 @@ const Gallery = () => {
         }
       } else {
         // SCROLLING UP
-        if (currentContentScroll > 0) {
-          // Priority 1: Scroll Content Up
-          scrollArea.scrollTop += delta * contentSpeed;
-        } else {
-          // Priority 2: Expand Navbar (only if content is at top)
+        if (currentNavPos > 0) {
+          // Priority 1: Expand Navbar immediately
           currentNavPos += delta * navbarExpandSpeed;
           currentNavPos = Math.max(currentNavPos, 0);
+        } else {
+          // Priority 2: Scroll Content Up (only if navbar is fully expanded)
+          scrollArea.scrollTop += delta * contentSpeed;
         }
       }
 
