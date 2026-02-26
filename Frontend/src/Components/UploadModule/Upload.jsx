@@ -39,7 +39,7 @@ const Upload = () => {
     image: previewUrl,
   };
 
-  console.log("Wallpaper Saved:", wallpaper); 
+  
    
    };
     
@@ -58,7 +58,7 @@ const Upload = () => {
            const shorter = Math.min(width, height); 
            const ratio = longer / shorter; 
            const isPortrait = height > width; 
-           console.log("Ratio:", ratio.toFixed(2));
+          
            if(ratio>=2.0){
             setValue("device","mobile");
            }
