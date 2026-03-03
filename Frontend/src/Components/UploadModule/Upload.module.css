@@ -42,6 +42,10 @@ input:active {
 }
 
 .textarea {
+  height: 95px;
+ resize: none;
+}
+.fieldwallpaper .input.description {
     height: 95px;
     resize: none;
 }
