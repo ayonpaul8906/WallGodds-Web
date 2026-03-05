@@ -267,8 +267,8 @@
         width: 5px;
         height: 12.438px;
         position: absolute;
-        top: 0;
-        right: -2px;
+        top: 1px;
+        right: 3.5px;
         flex-shrink: 0;
         transition:
             opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
