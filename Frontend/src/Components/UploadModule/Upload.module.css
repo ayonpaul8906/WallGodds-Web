@@ -50,8 +50,8 @@
 }
 
 .textarea {
-  height: 95px;
- resize: none;
+    height: 95px;
+    resize: none;
 }
 
 .fieldwallpaper .input.description {
@@ -527,7 +527,7 @@ input[type="checkbox"].checkboxError:not(:checked) {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    
+
     align-items: center;
     background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect x='1.5' y='1.5' width='calc(100%25 - 3px)' height='calc(100%25 - 3px)' fill='none' rx='13.43' ry='13.43' stroke='%237e93d6' stroke-width='2' stroke-dasharray='6%2c 6' stroke-linecap='round'/%3e%3c/svg%3e");
     background-repeat: no-repeat;
@@ -559,7 +559,7 @@ input[type="checkbox"].checkboxError:not(:checked) {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;        
+    gap: 10px;
     cursor: pointer;
 }
 
@@ -686,7 +686,7 @@ input[type="checkbox"].checkboxError:not(:checked) {
 
 :global(.dark-theme) .uploadIcon {
     max-width: 15rem;
-    margin : auto;
+    margin: auto;
 }
 
 :global(.dark-theme) .dragText {
@@ -697,11 +697,11 @@ input[type="checkbox"].checkboxError:not(:checked) {
     color: #6b78a0;
 }
 
-:global(.dark-theme) .and{
+:global(.dark-theme) .and {
     color: #aab2fd;
 }
 
-:global(.dark-theme) .photoText{
+:global(.dark-theme) .photoText {
     color: #aab2fd;
 }
 

@@ -91,7 +91,6 @@ const Upload = () => {
 
   };
 
-
   // Distribute wallpapers between columns based on height
   const distributeWallpapers = useCallback((allWallpapers) => {
     if (allWallpapers.length === 0) {
@@ -172,7 +171,6 @@ const Upload = () => {
     e.target.value = "";
   };
 
-
   return (
     <>
       <div className={Styles.navbarWrapper}>
@@ -247,7 +245,6 @@ const Upload = () => {
                       <option value="mobile">Mobile</option>
                       <option value="laptop">Laptop</option>
                     </select>
-
                   </div>
 
                   <div className={Styles.field}>
@@ -273,7 +270,6 @@ const Upload = () => {
                           {cat}
                         </option>
                       ))}
-
                       <option value="other">Other</option>
                     </select>
                   </div>
