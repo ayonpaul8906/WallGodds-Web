@@ -127,6 +127,13 @@
     color: white;
 }
 
+/* Firefox-only select focus background in dark theme. */
+@-moz-document url-prefix() {
+    :global(.dark-theme) select.input:focus {
+        background-color: #373737 !important;
+    }
+}
+
 :global(.dark-theme) select.input option {
     appearance: none;
     -webkit-appearance: none;
